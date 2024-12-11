@@ -1,6 +1,8 @@
 package com.wecp.progressive.controller;
 
 import com.wecp.progressive.entity.Team;
+import com.wecp.progressive.exception.TeamAlreadyExistsException;
+import com.wecp.progressive.exception.TeamDoesNotExistException;
 import com.wecp.progressive.service.impl.TeamServiceImplArraylist;
 import com.wecp.progressive.service.impl.TeamServiceImplJpa;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,33 +34,40 @@ public class TeamController {
     }
 
     @GetMapping("/{teamId}")
-    public ResponseEntity<Team> getTeamById(@PathVariable int teamId) {
+    public ResponseEntity<?> getTeamById(@PathVariable int teamId) {
         try {
             Team team = teamServiceImplJpa.getTeamById(teamId);
             return new ResponseEntity<>(team, HttpStatus.OK);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (TeamDoesNotExistException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            // Return a generic error message for any other exceptions
+            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping
-    public ResponseEntity<Integer> addTeam(@RequestBody Team team) {
+    public ResponseEntity<?> addTeam(@RequestBody Team team) {
         try {
             int teamId = teamServiceImplJpa.addTeam(team);
             return new ResponseEntity<>(teamId, HttpStatus.CREATED);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (TeamAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);  // Team name conflict
+        } catch (Exception e) {
+            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);  // Generic error handling
         }
     }
 
     @PutMapping("/{teamId}")
-    public ResponseEntity<Void> updateTeam(@PathVariable int teamId, @RequestBody Team team) {
+    public ResponseEntity<?> updateTeam(@PathVariable int teamId, @RequestBody Team team) {
         try {
             team.setTeamId(teamId);
             teamServiceImplJpa.updateTeam(team);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (TeamAlreadyExistsException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);  // Team name conflict
+        } catch (Exception e) {
+            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);  // Generic error handling
         }
     }
 

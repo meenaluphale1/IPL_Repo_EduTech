@@ -10,6 +10,7 @@ const routes: Routes = [
     path: 'ipl',
     loadChildren: () => import('./ipl/ipl.module').then((m) => m.IplModule),
   },
+  
   {
     path: '',
     pathMatch: 'full',
