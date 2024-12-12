@@ -1,5 +1,4 @@
 <app-navbar></app-navbar>
-
 <div class="container">
   <h2>Teams</h2>
   <table class="table">
@@ -58,4 +57,53 @@
       </tr>
     </tbody>
   </table>
+
+  <h2>Votes</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Vote</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let vote of voteList">
+        <td>{{ vote.category }}</td>
+        <td>{{ vote.cricketer !== null ? vote.cricketer.cricketerName : vote.team.teamName }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="voteList.length === 0" class="empty-list">No tickets to display</div>
+
+  <!-- Display Tickets Booked -->
+  <div *ngIf="role === 'USER'">
+    <form [formGroup]="emailForm" (ngSubmit)="onSubmitEmail()" class="email-form-container">
+      <div>
+        <label for="email">Email:</label>
+        <input id="email" type="email" formControlName="email" placeholder="Enter email" required />
+      </div>
+      <button type="submit" [disabled]="emailForm.invalid">Search Tickets</button>
+    </form>
+
+    <h2>Tickets Booked</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Match</th>
+          <th>Match Date</th>
+          <th>No. of Tickets</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ticket of ticketsBooked">
+          <td>{{ ticket.bookingId }}</td>
+          <td>{{ ticket.match.firstTeam.teamName }} vs {{ ticket.match.secondTeam.teamName }}</td>
+          <td>{{ ticket.match.matchDate | date }}</td>
+          <td>{{ ticket.numberOfTickets }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="ticketsBooked.length === 0" class="empty-list">No tickets to display</div>
+  </div>
 </div>
